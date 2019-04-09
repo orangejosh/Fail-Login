@@ -5,15 +5,18 @@ from sqlite3 import Error
 args = sys.argv
 
 def main():
+	# Assumes a database has ben created
     conn = create_connection("/home/pi/logData/logData.db")
 
     with conn:
+		# No arguments returns a grouped list of the usernames used to login
         if len(args) == 1:
             sql = ''' SELECT username, COUNT(username) FROM logs 
                         JOIN users ON logs.user_id=users.id 
                         GROUP BY username 
                         ORDER BY COUNT(username) '''
             display(conn, sql)
+		# If argument is a number returns usernames that are that length
         elif args[1].isdigit():
             print("numberic")
             sql = ''' SELECT month, day, time, username, ip, city, region, country FROM logs 
@@ -22,7 +25,7 @@ def main():
                         JOIN users ON logs.user_id = users.id
                         WHERE length(username) = ''' + args[1] + ''';'''
             display(conn, sql)
-
+		# If argument is a username displays the month, day, time username, city, region, and country with that username
         else:
             sql = ''' SELECT month, day, time, username, ip, city, region, country FROM logs 
                         JOIN dates ON logs.date_id = dates.id

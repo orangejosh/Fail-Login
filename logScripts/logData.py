@@ -7,14 +7,13 @@ import re
 args = sys.argv
 
 def main():
+	# Assumes a database has ben created
     conn = create_connection("/home/pi/logData/logData.db")
     create_all_tables(conn)
 
     with conn:
         f = open(args[1])
-#        x = 1
         for i in f:
-#            print x
             str = re.split('"', i)
 
             try:
