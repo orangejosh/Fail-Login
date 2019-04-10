@@ -5,14 +5,15 @@ import urllib, json
 import re
 
 args = sys.argv
+database = args[1]
+failLog = args[2]
 
 def main():
-	# Assumes a database has ben created
-    conn = create_connection("/home/pi/logData/logData.db")
+    conn = create_connection(database)
     create_all_tables(conn)
 
     with conn:
-        f = open(args[1])
+        f = open(failLog)
         for i in f:
             str = re.split('"', i)
 
@@ -55,8 +56,6 @@ def main():
             log = (time, ip, user_id, date_id, location_id) 
             sql = ''' INSERT INTO logs(time, ip, user_id, date_id, location_id) VALUES (?,?,?,?,?) '''
             log_id = create_row(conn, sql, log)
-#            x += 1
-
 
 def create_connection(db_file):
     try:
@@ -89,6 +88,16 @@ def create_all_tables(conn):
                         UNIQUE(username)
                     );"""
 
+
+    bot_table = """CREATE TABLE IF NOT EXISTS bots(
+                        id integer PRIMARY KEY AUTOINCREMENT,
+                        date_id INTEGER,
+                        start_time TEXT,
+                        end_time TEXT,
+                        FOREIGN KEY (date_id) REFERENCES dates (id),
+                        UNIQUE(date_id, start_time)
+                    );"""
+
     log_table = """CREATE TABLE IF NOT EXISTS logs (
                         id integer PRIMARY KEY AUTOINCREMENT,
                         time TEXT NOT NULL,
@@ -96,15 +105,18 @@ def create_all_tables(conn):
                         user_id, INTEGER,
                         date_id INTEGER,
                         location_id INTEGER,
+                        bot_id INTEGER,
                         FOREIGN KEY (user_id) REFERENCES users (id),
                         FOREIGN KEY (date_id) REFERENCES dates (id),
-                        FOREIGN KEY (location_id) REFERENCES locations (id)
+                        FOREIGN KEY (location_id) REFERENCES locations (id),
+                        FOREIGN KEY (bot_id) REFERENCES bots (id)
                     );"""
 
     if conn is not None:
         create_table(conn, date_table)
         create_table(conn, location_table)
         create_table(conn, user_table)
+        create_table(conn, bot_table)
         create_table(conn, log_table)
     else:
         print("Error: cannot create database connection")
