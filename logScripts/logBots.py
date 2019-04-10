@@ -99,7 +99,7 @@ def closeInTime(time, nextTime):
 
         if hour == nextHour and nextMinuite - minuite < 2:
             return True
-        elif nextHour - 1 == hour and nextMinuite - (60 - nextMinuite) < 2:
+        elif nextHour - 1 == hour and nextMinuite + (60 - minuite) < 2:
             return True
         else:
             return False
