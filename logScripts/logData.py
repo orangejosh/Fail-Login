@@ -5,18 +5,20 @@ import urllib, json
 import re
 
 args = sys.argv
-database = args[1]
-failLog = args[2]
+database = args[1]  # Path to the database
+fail_log = args[2]  # Path to the temp log
 
 def main():
     conn = create_connection(database)
     create_all_tables(conn)
 
     with conn:
-        f = open(failLog)
+        # Temp log record of all the failed login attempts created by the parcer
+        f = open(fail_log)           
         for i in f:
             str = re.split('"', i)
 
+            # For some reason the parser messes up and doesn't get this info sometimes
             try:
                 city = str[1].decode('utf-8')
                 region = str[3].decode('utf-8')
@@ -35,6 +37,7 @@ def main():
             user = str[3].decode('utf-8')
             ip = str[4].decode('utf-8')
 
+            # Create the rows in the tables
             date = (month, day)
             sql = ''' INSERT OR IGNORE INTO dates(month, day) VALUES(?,?) '''
             create_row(conn, sql, date)
@@ -55,8 +58,10 @@ def main():
 
             log = (time, ip, user_id, date_id, location_id) 
             sql = ''' INSERT OR IGNORE INTO logs(time, ip, user_id, date_id, location_id) VALUES (?,?,?,?,?) '''
-            log_id = create_row(conn, sql, log)
+            create_row(conn, sql, log)
 
+
+# Connect to database
 def create_connection(db_file):
     try:
         conn = sqlite3.connect(db_file)
@@ -66,6 +71,8 @@ def create_connection(db_file):
         
     return None
 
+
+# Create all the necessary tables if they doen't all ready exist
 def create_all_tables(conn):
     date_table = """CREATE TABLE IF NOT EXISTS dates (
                         id integer PRIMARY KEY AUTOINCREMENT,
@@ -122,6 +129,7 @@ def create_all_tables(conn):
     else:
         print("Error: cannot create database connection")
 
+
 def create_table(conn, table):
     try:
         c = conn.cursor()
@@ -129,9 +137,11 @@ def create_table(conn, table):
     except Error as e:
         print(e)
 
+
 def create_row(conn, sql, obj):
     cur = conn.cursor()
     cur.execute(sql, obj)
+
 
 def get_row_id(conn, sql, obj):
     cur = conn.cursor()
