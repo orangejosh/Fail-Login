@@ -54,7 +54,7 @@ def main():
             location_id = get_row_id(conn, sql, location)
 
             log = (time, ip, user_id, date_id, location_id) 
-            sql = ''' INSERT INTO logs(time, ip, user_id, date_id, location_id) VALUES (?,?,?,?,?) '''
+            sql = ''' INSERT OR IGNORE INTO logs(time, ip, user_id, date_id, location_id) VALUES (?,?,?,?,?) '''
             log_id = create_row(conn, sql, log)
 
 def create_connection(db_file):
@@ -109,7 +109,8 @@ def create_all_tables(conn):
                         FOREIGN KEY (user_id) REFERENCES users (id),
                         FOREIGN KEY (date_id) REFERENCES dates (id),
                         FOREIGN KEY (location_id) REFERENCES locations (id),
-                        FOREIGN KEY (bot_id) REFERENCES bots (id)
+                        FOREIGN KEY (bot_id) REFERENCES bots (id),
+                        UNIQUE(date_id, time)
                     );"""
 
     if conn is not None:
