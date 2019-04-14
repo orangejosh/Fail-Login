@@ -101,6 +101,7 @@ def create_all_tables(conn):
                         date_id INTEGER,
                         start_time TEXT,
                         end_time TEXT,
+                        count INTEGER DEFAULT 0,
                         FOREIGN KEY (date_id) REFERENCES dates (id),
                         UNIQUE(date_id, start_time)
                     );"""

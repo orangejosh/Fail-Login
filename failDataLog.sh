@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #############################################################################################
 # runLogData.sh
@@ -18,17 +18,20 @@
 # attacks into a table.
 #############################################################################################
 
+# If using cron uncomment and change this to the absolute path of program directory.
+# When setting up cron make sure you are root
+#cd /home/pi/logData
 
-# If using cron uncomment and change this to the absolute path of the program directory.
-#cd /home/pi/logData/
-
-log_path=$1
+LOG_PATH=$1
+DATABASE="dataBase/logData.db"
 DATE=`date "+%m-%d"`
 
-logScripts/parseData.sh $log_path fail$DATE.log
-python logScripts/logData.py logData.db fail$DATE.log
-python logScripts/logBots.py logData.db
+mkdir -p dataBase
+
+logScripts/parseData.sh $LOG_PATH fail$DATE.log
+python logScripts/logData.py $DATABASE fail$DATE.log
+python logScripts/logBots.py $DATABASE
 
 gzip fail$DATE.log
-mkdir oldLogs
+mkdir -p oldLogs
 mv fail$DATE.log.gz oldLogs/
