@@ -1,19 +1,29 @@
+#############################################################################
+# displayBots.py
+#   arugemnts: path/to/database
+#              Min number of bots in botnet to display attack (optional)
+#   
+# Description:
+#   Loops through each entry in the bots table. Displays the month, day
+#   time, username, ip, city, region, country, number of bots in botnet, and bot_id.
+#   It groups each login attempt with attempts that are probably from the same bot.
+# 
+#############################################################################
+
 
 import sys
 import sqlite3
 from sqlite3 import Error
 
-
-args = sys.argv
-database = args[1]  # Path to the database 
+DATABASE = sys.argv[1]
 
 count = 0
-if len(args) > 2:
-    count = args[2]
+if len(sys.argv) > 2:
+    count = sys.argv[2]
 
 
 def main():
-    conn = create_connection(database)
+    conn = create_connection(DATABASE)
     with conn:
         sql = ''' SELECT id FROM bots '''
         attacks = get_rows(conn, sql)
@@ -42,7 +52,7 @@ def get_rows(conn, sql):
 def print_attacks(conn, attacks):
     for bot_net in attacks:
         bot_id = (bot_net[0], count)
-        sql = ''' SELECT month, day, time, username, ip, city, region, country, count FROM logs
+        sql = ''' SELECT month, day, time, username, ip, city, region, country, count, bot_id FROM logs
                     JOIN dates ON logs.date_id = dates.id
                     JOIN users ON logs.user_id = users.id
                     JOIN locations ON logs.location_id = locations.id 

@@ -1,20 +1,36 @@
+#############################################################################
+# logData.py
+#   arugemnts: path/to/database 
+#              path/to/temp/log
+#   
+# Description:
+#   Inserts the data from the temp logfile create by parseData.sh into
+#   a database. The database tables consist of:
+#       dates: id, month, day
+#       locations: id, city, region, country
+#       users: id, username
+#       bots: id, start_time, end_time, count
+#       logs: id, month*, day*, time, ip, username*, city*, region*, country*, bot_id*
+#       * Foreign keys
+# 
+#############################################################################
+
 import sys
 import sqlite3
 from sqlite3 import Error
 import urllib, json
 import re
 
-args = sys.argv
-database = args[1]  # Path to the database
-fail_log = args[2]  # Path to the temp log
+DATABASE = sys.argv[1] 
+TEMP_LOG = sys.argv[2]
 
 def main():
-    conn = create_connection(database)
+    conn = create_connection(DATABASE)
     create_all_tables(conn)
 
     with conn:
         # Temp log record of all the failed login attempts created by the parcer
-        f = open(fail_log)           
+        f = open(TEMP_LOG)           
         for i in f:
             str = re.split('"', i)
 
