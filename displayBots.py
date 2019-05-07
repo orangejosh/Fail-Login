@@ -15,21 +15,22 @@ import sys
 import sqlite3
 from sqlite3 import Error
 
-DATABASE = sys.argv[1]
-
 count = 0
-if len(sys.argv) > 2:
-    count = sys.argv[2]
-
 
 def main():
-    conn = create_connection(DATABASE)
+    if len(sys.argv) == 3:
+        count = sys.argv[2]
+    elif len(sys.argv) == 1 or len(sys.argv) > 3:
+        print "Argument Error, format arguments like:"
+        print "     python displayBots.py /path/to/database count(optional)"
+        print "     count is the min. number of bots in botnet to display"
+        return
+
+    conn = create_connection(sys.argv[1])
     with conn:
         sql = ''' SELECT id FROM bots '''
         attacks = get_rows(conn, sql)
         print_attacks(conn, attacks)
-
-
 
 # Connect to database
 def create_connection(db_file):
